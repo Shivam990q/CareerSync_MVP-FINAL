@@ -12,9 +12,27 @@ const app = express();
 
 // CORS Configuration
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://careerwise.ai', 'https://www.careerwise.ai'] 
-    : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174', 'http://127.0.0.1:3000'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin matches allowed patterns
+    const allowedOrigins = process.env.NODE_ENV === 'production'
+      ? ['https://careerwise.ai', 'https://www.careerwise.ai', 'https://careersync-mvp-frontend.onrender.com', 'https://careersync-mvp-final-frontend.onrender.com']
+      : ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174', 'http://127.0.0.1:3000', 'http://localhost:8080'];
+    
+    // Allow all Render domains
+    if (origin.includes('.onrender.com')) {
+      return callback(null, true);
+    }
+    
+    // Check against specific allowed origins
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
