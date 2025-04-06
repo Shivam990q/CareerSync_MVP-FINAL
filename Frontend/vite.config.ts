@@ -14,6 +14,13 @@ export default defineConfig(({ mode }) => ({
         target: process.env.VITE_API_BASE_URL || 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
+        rewrite: (path) => {
+          // If the API base URL already includes /api, we need to strip it from the path
+          if (process.env.VITE_API_BASE_URL?.includes('/api')) {
+            return path.replace(/^\/api/, '');
+          }
+          return path;
+        },
       }
     }
   },

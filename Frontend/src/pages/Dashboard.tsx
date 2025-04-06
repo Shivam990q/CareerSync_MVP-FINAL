@@ -91,8 +91,31 @@ const Dashboard = () => {
         }
       });
       
-      const response = await fetch(`/api/jobs?${queryParams.toString()}`);
-      const data = await response.json();
+      // Use API client to ensure environment variables are properly used
+      const endpoint = import.meta.env.VITE_API_BASE_URL?.includes('/api') 
+        ? `/jobs?${queryParams.toString()}` 
+        : `/api/jobs?${queryParams.toString()}`;
+      
+      // Create full URL based on environment
+      const url = import.meta.env.VITE_API_BASE_URL 
+        ? `${import.meta.env.VITE_API_BASE_URL}${endpoint}`
+        : endpoint;
+      
+      console.log('Fetching from URL:', url);
+      
+      let response;
+      let data;
+      
+      try {
+        // First try with the environment URL
+        response = await fetch(url);
+        data = await response.json();
+      } catch (error) {
+        console.warn('First fetch attempt failed, trying fallback:', error);
+        // Fallback to relative URL if the first attempt fails
+        response = await fetch(`/api/jobs?${queryParams.toString()}`);
+        data = await response.json();
+      }
       
       if (data.status === 'success') {
         console.log(`Received ${data.results} jobs out of ${data.totalCount} total`);

@@ -58,7 +58,11 @@ console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || '/api');
 // Add a request interceptor for debugging
 apiClient.interceptors.request.use(
   config => {
-    console.log('Making API request to:', config.baseURL + config.url);
+    console.log('Making API request to:', `${config.baseURL}${config.url}`);
+    // Make sure URLs are properly formed when using environment variables
+    if (config.baseURL.endsWith('/') && config.url?.startsWith('/')) {
+      config.url = config.url.substring(1);
+    }
     return config;
   },
   error => {
