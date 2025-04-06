@@ -52,6 +52,20 @@ const apiClient = axios.create({
   },
 });
 
+// Debug the API base URL to understand what's configured
+console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL || '/api');
+
+// Add a request interceptor for debugging
+apiClient.interceptors.request.use(
+  config => {
+    console.log('Making API request to:', config.baseURL + config.url);
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
+
 // Add a response interceptor for global error handling
 apiClient.interceptors.response.use(
   response => response,
@@ -78,7 +92,9 @@ export const api = {
     getAll: async (): Promise<Job[]> => {
       try {
         console.log('Fetching all jobs...');
-        const response = await apiClient.get('/jobs');
+        // Make sure we're adding /api if the baseURL doesn't already have it
+        const endpoint = import.meta.env.VITE_API_BASE_URL?.includes('/api') ? '/jobs' : '/api/jobs';
+        const response = await apiClient.get(endpoint);
         console.log('Raw API response status:', response.status);
         
         // Check the response structure
@@ -152,7 +168,9 @@ export const api = {
     getById: async (id: string): Promise<Job | undefined> => {
       try {
         console.log(`Fetching job with id: ${id}`);
-        const response = await apiClient.get(`/jobs/${id}`);
+        // Make sure we're adding /api if the baseURL doesn't already have it
+        const endpoint = import.meta.env.VITE_API_BASE_URL?.includes('/api') ? `/jobs/${id}` : `/api/jobs/${id}`;
+        const response = await apiClient.get(endpoint);
         
         // Check response structure
         const jobData = response.data.data?.job || response.data.job;
@@ -218,7 +236,9 @@ export const api = {
     // Debug function to look at raw MongoDB data
     getRawData: async (): Promise<any> => {
       try {
-        const response = await apiClient.get('/jobs/debug');
+        // Make sure we're adding /api if the baseURL doesn't already have it
+        const endpoint = import.meta.env.VITE_API_BASE_URL?.includes('/api') ? '/jobs/debug' : '/api/jobs/debug';
+        const response = await apiClient.get(endpoint);
         return response.data;
       } catch (error) {
         console.error('Error fetching raw job data:', error);
