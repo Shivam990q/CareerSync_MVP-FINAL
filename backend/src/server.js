@@ -23,6 +23,7 @@ const corsOptions = {
           'https://www.careerwise.ai', 
           'https://careersync-mvp-frontend.onrender.com', 
           'https://careersync-mvp-final-frontend.onrender.com',
+          'https://careersync-frontend.vercel.app',
           // Include any other production domains here
         ]
       : [
@@ -39,6 +40,12 @@ const corsOptions = {
     // Allow all Render domains
     if (origin && origin.includes('.onrender.com')) {
       console.log('Allowing CORS for Render domain:', origin);
+      return callback(null, true);
+    }
+    
+    // Allow all Vercel domains
+    if (origin && origin.includes('.vercel.app')) {
+      console.log('Allowing CORS for Vercel domain:', origin);
       return callback(null, true);
     }
     
